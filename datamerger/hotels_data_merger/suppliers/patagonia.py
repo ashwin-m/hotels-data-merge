@@ -6,28 +6,28 @@ class PatagoniaResponse(SupplierResponse):
         super().__init__()
         self.id = json_response["id"]
         self.destination_id = json_response["destination"]
-        self.name = json_response["name"].trim()
+        self.name = json_response["name"].strip() if json_response["name"] is not None else ""
         self.latitude = json_response["lat"]
         self.longitude = json_response["lng"]
-        self.address = json_response["address"].trim()
-        self.description = json_response["info"].trim()
-        self.facilities = json_response["amenities"]
+        self.address = json_response["address"].strip() if json_response["address"] is not None else ""
+        self.description = json_response["info"].strip() if json_response["info"] is not None else ""
+        self.facilities = set(json_response["amenities"]) if json_response["amenities"] is not None else set()
 
         images_resp = json_response["images"]
+        if images_resp is not None:
+            room_images = []
+            room_images_resp = images_resp["rooms"]
+            for room in room_images_resp:
+                image = Image(room["url"], room["description"])
+                room_images.append(image)
 
-        room_images = []
-        room_images_resp = images_resp["rooms"]
-        for room in room_images_resp:
-            image = Image(room["url"], room["description"])
-            room_images.append(image)
+            amenities_images = []
+            amenities_images_resp = images_resp["amenities"]
+            for amenities in amenities_images_resp:
+                image = Image(amenities["url"], amenities["description"])
+                amenities_images.append(image)
 
-        amenities_images = []
-        amenities_images_resp = images_resp["amenities"]
-        for amenities in amenities_images_resp:
-            image = Image(amenities["url"], amenities["description"])
-            amenities_images.append(image)
-
-        self.images = SupplierImages(room_images, [], amenities_images)
+            self.images = SupplierImages(room_images, [], amenities_images)
 
 
 class PatagoniaSupplier(Supplier):

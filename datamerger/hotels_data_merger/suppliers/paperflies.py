@@ -6,27 +6,35 @@ class PaperfliesResponse(SupplierResponse):
         super().__init__()
         self.id = json_response["hotel_id"]
         self.destination_id = json_response["destination_id"]
-        self.name = json_response["hotel_name"].trim()
-        self.address = json_response["location"]["address"].trim()
-        self.country = json_response["location"]["country"].trim()
-        self.description = json_response["details"].trim()
-        amenities = json_response["amenities"]["general"]
-        amenities.extend(json_response["amenities"]["room"])
-        self.facilities = amenities
+        self.name = json_response["hotel_name"].strip() if json_response["hotel_name"] is not None else ""
+        if json_response["location"] is not None:
+            location = json_response["location"]
+            self.address = location["address"].strip() if json_response["location"]["address"] is not None else ""
+            self.country = location["country"].strip() if json_response["location"]["country"] is not None else ""
+        self.description = json_response["details"].strip() if json_response["details"] is not None else ""
+
+        if json_response["amenities"] is not None:
+            amenities = json_response["amenities"]["general"]
+            amenities.extend(json_response["amenities"]["room"])
+            self.facilities = set(amenities)
 
         room_images = []
-        room_images_resp = json_response["images"]["rooms"]
-        for room in room_images_resp:
-            image = Image(room["link"].trim(), room["caption"].trim())
-            room_images.append(image)
+        images_resp = json_response["images"]
+        if images_resp is not None:
+            room_images_resp = images_resp["rooms"]
+            for room in room_images_resp:
+                image = Image(room["link"].strip(), room["caption"].strip())
+                room_images.append(image)
 
-        site_images = []
-        site_images_resp = json_response["images"]["site"]
-        for site in site_images_resp:
-            image = Image(site["link"].trim(), site["caption"].trim())
-            site_images.append(image)
+            site_images = []
+            site_images_resp = images_resp["site"]
+            for site in site_images_resp:
+                image = Image(site["link"].strip(), site["caption"].strip())
+                site_images.append(image)
 
-        self.images = SupplierImages(room_images, site_images, [])
+            self.images = SupplierImages(room_images, site_images, [])
+        booking_conditions = json_response["booking_conditions"]
+        self.booking_conditions = set(booking_conditions) if booking_conditions is not None else set()
 
 
 class PaperfliesSupplier(Supplier):
