@@ -1,6 +1,6 @@
-from suppliers.acme import AcmeSupplier
-from suppliers.patagonia import PatagoniaSupplier
-from suppliers.paperflies import PaperfliesSupplier
+from .suppliers.acme import AcmeSupplier
+from .suppliers.patagonia import PatagoniaSupplier
+from .suppliers.paperflies import PaperfliesSupplier
 
 
 class HotelsSearchManager:

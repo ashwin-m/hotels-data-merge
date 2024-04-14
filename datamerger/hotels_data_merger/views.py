@@ -1,6 +1,6 @@
 from django.http import HttpResponse, JsonResponse
 from http import HTTPStatus
-from managers import HotelsSearchManager
+from .managers import HotelsSearchManager
 
 
 MAX_ALLOWED_SEARCH_IDS = 500
@@ -16,8 +16,8 @@ def search(request):
     if not is_valid:
         return JsonResponse({"resp": [], "error": error}, status=HTTPStatus.BAD_REQUEST)
 
-    hotel_ids = request.POST['hotel_ids']
-    destination_id = request.POST['destination_id']
+    hotel_ids = request.POST.get('hotel_ids')
+    destination_id = request.POST.get('destination_id')
 
     # todo add from and size
 
@@ -33,10 +33,10 @@ def search(request):
 
 
 def validate_search_request(request_post):
-    hotel_ids = request_post['hotel_ids']
-    destination_id = request_post['destination_id']
+    hotel_ids = request_post.get('hotel_ids')
+    destination_id = request_post.get('destination_id')
 
-    if not hotel_ids or not destination_id:
+    if not hotel_ids and not destination_id:
         return False, "missing required parameters"
 
     if len(hotel_ids) > MAX_ALLOWED_SEARCH_IDS:
