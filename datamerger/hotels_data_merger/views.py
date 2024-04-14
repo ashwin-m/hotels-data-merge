@@ -1,6 +1,6 @@
 from django.http import HttpResponse, JsonResponse
 from http import HTTPStatus
-from managers import get_hotels_by_ids, get_hotels_by_destination_id
+from managers import HotelsSearchManager
 
 
 MAX_ALLOWED_SEARCH_IDS = 500
@@ -22,11 +22,12 @@ def search(request):
     # todo add from and size
 
     hotels = []
+    search_manager = HotelsSearchManager()
 
     if hotel_ids:
-        hotels = get_hotels_by_ids(hotel_ids)
+        hotels = search_manager.get_by_ids(hotel_ids)
     else:
-        hotels = get_hotels_by_destination_id(destination_id)
+        hotels = search_manager.get_hotels_by_destination_id(destination_id)
 
     return JsonResponse({"resp": hotels, "error": ""})
 

@@ -1,6 +1,13 @@
-def get_hotels_by_ids(hotel_ids):
-    return []
+class SearchManager:
+    pass
 
 
-def get_hotels_by_destination_id(destination_id):
-    return []
+class HotelsSearchManager(SearchManager):
+
+    
+
+    def get_by_ids(self, hotel_ids):
+        return []
+
+    def get_hotels_by_destination_id(self, destination_id):
+        return []
