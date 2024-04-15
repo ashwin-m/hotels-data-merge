@@ -26,7 +26,7 @@ class HotelsSearchManager:
                 else:
                     hotels_by_id[hotel_id] = datum
 
-        return hotels_by_id
+        return [hotel.to_string() for hotel in hotels_by_id.values()]
 
     def get_hotels_by_destination_id(self, destination_id):
         hotels_by_id = dict()
@@ -40,4 +40,4 @@ class HotelsSearchManager:
                 else:
                     hotels_by_id[hotel_id] = datum
 
-        return hotels_by_id
+        return [hotel.to_string() for hotel in hotels_by_id.values()]

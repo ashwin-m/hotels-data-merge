@@ -8,8 +8,7 @@ class AcmeResponse(SupplierResponse):
         "JP": "Japan"
     }
 
-    def __init__(self, json_response):
-        super().__init__()
+    def parse(self, json_response):
         self.id = json_response["Id"]
         self.destination_id = json_response["DestinationId"]
         self.name = json_response["Name"].strip() if json_response["Name"] is not None else ""
@@ -22,7 +21,9 @@ class AcmeResponse(SupplierResponse):
         country = json_response["Country"].strip() if json_response["Country"] is not None else ""
         self.country = self.COUNTRY_CODE_MAP.get(country, "")
         self.description = json_response["Description"].strip() if json_response["Description"] is not None else ""
-        self.facilities = set(json_response["Facilities"]) if json_response["Facilities"] is not None else set()
+        facilities = json_response["Facilities"] if json_response["Facilities"] is not None else []
+        for facility in facilities:
+            self.facilities.add(facility.strip().capitalize())
 
 
 class AcmeSupplier(Supplier):
@@ -30,4 +31,4 @@ class AcmeSupplier(Supplier):
     URL = "https://5f2be0b4ffc88500167b85a0.mockapi.io/suppliers/acme"
 
     def __init__(self):
-        super().__init__(self.URL, AcmeResponse.__class__)
+        super().__init__(self.URL, AcmeResponse)

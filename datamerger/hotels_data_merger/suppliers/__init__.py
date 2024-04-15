@@ -6,6 +6,12 @@ class Image:
         self.image_url = image_url
         self.caption = caption
 
+    def to_string(self):
+        return dict(
+            url=self.image_url,
+            caption=self.caption,
+        )
+
 
 class SupplierImages:
 
@@ -21,6 +27,34 @@ class SupplierImages:
             self.sites.extend(image.sites)
         if len(image.amenities) > 0:
             self.amenities.extend(image.amenities)
+
+    def to_string(self):
+        return dict(
+            rooms=self.get_room_images_string(),
+            sites=self.get_site_images_string(),
+            amenities=self.get_amenities_images_string(),
+        )
+
+    def get_room_images_string(self):
+        room_images = []
+        if self.rooms is not None:
+            for room in self.rooms:
+                room_images.append(room.to_string())
+        return room_images
+
+    def get_site_images_string(self):
+        site_images = []
+        if self.sites is not None:
+            for site in self.sites:
+                site_images.append(site.to_string())
+        return site_images
+
+    def get_amenities_images_string(self):
+        amenities_images = []
+        if self.amenities is not None:
+            for amenities in self.amenities:
+                amenities_images.append(amenities.to_string())
+        return amenities_images
 
 
 class SupplierResponse:
@@ -38,6 +72,9 @@ class SupplierResponse:
         self.facilities = set()
         self.images = None
         self.booking_conditions = set()
+
+    def parse(self, json_response):
+        raise NotImplementedError
 
     def merge(self, data):
         if self.destination_id != data.destination_id:
@@ -113,15 +150,15 @@ class SupplierResponse:
         if self.description == "":
             self.description = description
             return
-        self.country = f"{self.country} {description}"
+        self.description = f"{self.description} {description}"
 
     def merge_facilities(self, facilities):
-        if not self.facilities:
-            self.facilities = facilities
-            return
         for facility in facilities:
-            if facility not in self.facilities:
-                self.facilities.add(facility)
+            facility_without_space = facility.replace(" ", "")
+            if facility_without_space.capitalize() in self.facilities:
+                self.facilities.remove(facility_without_space.capitalize())
+            if facility.strip().capitalize() not in self.facilities:
+                self.facilities.add(facility.strip().capitalize())
 
     def merge_images(self, images):
         if not self.images:
@@ -137,6 +174,27 @@ class SupplierResponse:
             if booking_condition not in self.booking_conditions:
                 self.booking_conditions.add(booking_conditions)
 
+    def to_string(self):
+        string_value = dict(
+            id=self.id,
+            destination_id=self.destination_id,
+            name=self.name,
+            latitude=self.latitude,
+            longitude=self.longitude,
+            address=self.address,
+            city=self.city,
+            country=self.country,
+            description=self.description,
+        )
+        if self.facilities is not None:
+            string_value["facilities"] = list(self.facilities)
+        if self.booking_conditions is not None:
+            string_value["booking_conditions"] = list(self.booking_conditions)
+        if self.images is not None:
+            string_value["images"] = self.images.to_string()
+
+        return string_value
+
 
 class Supplier:
 
@@ -145,6 +203,11 @@ class Supplier:
         self.clazz = clazz
 
     def get_hotels(self):
+        data = []
         resp = requests.get(self.url)
         resp_json = resp.json()
-        return self.clazz(resp_json)
+        for hotels_data in resp_json:
+            parsed_resp_class = self.clazz()
+            parsed_resp_class.parse(hotels_data)
+            data.append(parsed_resp_class)
+        return data

@@ -17,7 +17,7 @@ def search(request):
         return JsonResponse({"resp": [], "error": error}, status=HTTPStatus.BAD_REQUEST)
 
     hotel_ids = request.POST.get('hotel_ids')
-    destination_id = request.POST.get('destination_id')
+    destination_id = int(request.POST.get('destination_id'))
 
     # todo add from and size
 
@@ -39,7 +39,8 @@ def validate_search_request(request_post):
     if not hotel_ids and not destination_id:
         return False, "missing required parameters"
 
-    if len(hotel_ids) > MAX_ALLOWED_SEARCH_IDS:
+    if hotel_ids and len(hotel_ids) > MAX_ALLOWED_SEARCH_IDS:
         return False, f"only {MAX_ALLOWED_SEARCH_IDS} hotel ids allowed to be searched at a time"
 
     return True, ""
+5432

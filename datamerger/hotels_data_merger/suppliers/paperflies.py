@@ -2,8 +2,8 @@ from . import Supplier, SupplierResponse, SupplierImages, Image
 
 
 class PaperfliesResponse(SupplierResponse):
-    def __init__(self, json_response):
-        super().__init__()
+
+    def parse(self, json_response):
         self.id = json_response["hotel_id"]
         self.destination_id = json_response["destination_id"]
         self.name = json_response["hotel_name"].strip() if json_response["hotel_name"] is not None else ""
@@ -15,8 +15,11 @@ class PaperfliesResponse(SupplierResponse):
 
         if json_response["amenities"] is not None:
             amenities = json_response["amenities"]["general"]
-            amenities.extend(json_response["amenities"]["room"])
-            self.facilities = set(amenities)
+            for amenity in amenities:
+                self.facilities.add(amenity.strip().capitalize())
+            rooms = json_response["amenities"]["room"]
+            for room in rooms:
+                self.facilities.add(room.strip().capitalize())
 
         room_images = []
         images_resp = json_response["images"]
@@ -42,4 +45,4 @@ class PaperfliesSupplier(Supplier):
     URL = "https://5f2be0b4ffc88500167b85a0.mockapi.io/suppliers/paperflies"
 
     def __init__(self):
-        super().__init__(self.URL, PaperfliesResponse.__class__)
+        super().__init__(self.URL, PaperfliesResponse)

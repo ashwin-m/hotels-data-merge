@@ -2,8 +2,8 @@ from . import Supplier, SupplierResponse, SupplierImages, Image
 
 
 class PatagoniaResponse(SupplierResponse):
-    def __init__(self, json_response):
-        super().__init__()
+
+    def parse(self, json_response):
         self.id = json_response["id"]
         self.destination_id = json_response["destination"]
         self.name = json_response["name"].strip() if json_response["name"] is not None else ""
@@ -11,7 +11,9 @@ class PatagoniaResponse(SupplierResponse):
         self.longitude = json_response["lng"]
         self.address = json_response["address"].strip() if json_response["address"] is not None else ""
         self.description = json_response["info"].strip() if json_response["info"] is not None else ""
-        self.facilities = set(json_response["amenities"]) if json_response["amenities"] is not None else set()
+        facilities = json_response["amenities"] if json_response["amenities"] is not None else []
+        for facility in facilities:
+            self.facilities.add(facility.strip().capitalize())
 
         images_resp = json_response["images"]
         if images_resp is not None:
@@ -35,4 +37,4 @@ class PatagoniaSupplier(Supplier):
     URL = "https://5f2be0b4ffc88500167b85a0.mockapi.io/suppliers/patagonia"
 
     def __init__(self):
-        super().__init__(self.URL, PatagoniaResponse.__class__)
+        super().__init__(self.URL, PatagoniaResponse)
