@@ -1,3 +1,5 @@
+import json
+
 from django.http import HttpResponse, JsonResponse
 from http import HTTPStatus
 from .managers import HotelsSearchManager
@@ -11,17 +13,18 @@ def index(request):
 
 
 def search(request):
+    request_body = json.loads(request.body)
+
     # validation of requests
-    is_valid, error = validate_search_request(request.POST)
+    is_valid, error = validate_search_request(request_body)
     if not is_valid:
         return JsonResponse({"resp": [], "error": error}, status=HTTPStatus.BAD_REQUEST)
 
-    hotel_ids = request.POST.get('hotel_ids')
-    destination_id = int(request.POST.get('destination_id'))
+    hotel_ids = request_body.get('hotel_ids')
+    destination_id = request_body.get('destination_id')
 
     # todo add from and size
 
-    hotels = []
     search_manager = HotelsSearchManager()
 
     if hotel_ids:
@@ -32,9 +35,9 @@ def search(request):
     return JsonResponse({"resp": hotels, "error": ""})
 
 
-def validate_search_request(request_post):
-    hotel_ids = request_post.get('hotel_ids')
-    destination_id = request_post.get('destination_id')
+def validate_search_request(request_body):
+    hotel_ids = request_body.get('hotel_ids')
+    destination_id = request_body.get('destination_id')
 
     if not hotel_ids and not destination_id:
         return False, "missing required parameters"
@@ -43,4 +46,3 @@ def validate_search_request(request_post):
         return False, f"only {MAX_ALLOWED_SEARCH_IDS} hotel ids allowed to be searched at a time"
 
     return True, ""
-5432
