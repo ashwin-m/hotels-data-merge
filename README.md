@@ -18,7 +18,7 @@ This will run the application on your local machine on port 8000.
 This returns hotels by hotel id. You can pass in a list of hotel_ids and you should get back a list of hotel details.
 
 ```commandline
-curl --location 'localhost:8000/hotels/search' \
+curl --location 'http://localhost:8000/hotels/search' \
 --header 'Content-Type: application/json' \
 --data '{
     "hotel_ids": ["iJhz"]
@@ -111,7 +111,7 @@ This only accepts a max limit of 500 hotel_ids. If passed in more than that, thi
 This returns hotels by destination id. You can pass in a destination_id and you should get back a list of hotel details.
 
 ```commandline
-curl --location 'localhost:8000/hotels/search' \
+curl --location 'http://localhost:8000/hotels/search' \
 --header 'Content-Type: application/json' \
 --data '{
     "destination_id": 5432
