@@ -198,13 +198,14 @@ class SupplierResponse:
 
 class Supplier:
 
-    def __init__(self, url, clazz):
+    def __init__(self, url, clazz, timeout=1):
         self.url = url
         self.clazz = clazz
+        self.timeout = timeout
 
     def get_hotels(self):
         data = []
-        resp = requests.get(self.url)
+        resp = requests.get(self.url, timeout=self.timeout)
         resp_json = resp.json()
         for hotels_data in resp_json:
             parsed_resp_class = self.clazz()
